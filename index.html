@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        font-family: Arial, sans-serif;
+      }
+      .main {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        background: linear-gradient(270deg, #89cff0, #ffb347, #ff6b6b);
+        background-size: 600% 600%;
+        animation: gradientShift 15s ease infinite;
+      }
+      #dropdown-button {
+        position: relative;
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: box-shadow 0.3s ease;
+      }
+      #dropdown-button:hover {
+        background-color: #0056b3;
+        box-shadow: 0 0 15px rgba(0, 123, 255, 0.6);
+      }
+      .dropdown-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      #dropdown-container {
+        position: absolute;
+        top: 100%; /* directly below button */
+        left: 0;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        border-radius: 8px;
+        padding: 5px 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+      #dropdown-container.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .hide {
+        display: none;
+      }
+
+      .icon-rotate {
+        transform: rotate(-90deg);
+        transition: transform 0.3s ease;
+      }
+      .show {
+        display: block;
+      }
+
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background: white;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      .btn:hover {
+        background-color: #ddd;
+        transform: translateX(4px);
+      }
+
+      @keyframes gradientShift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+      <div class="dropdown-wrapper">
+        <div id="dropdown-button" onclick="openDropdown()">
+          Menu
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" id="icon">
+            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" />
+          </svg>
+        </div>
+        <div id="dropdown-container" class="hide">
+          <button class="btn" onclick="zero()">Edit</button>
+          <button class="btn" onclick="zero()">Copy</button>
+          <button class="btn" onclick="zero()">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function openDropdown() {
+        document.getElementById("dropdown-container").classList.remove("hide");
+        document.getElementById("dropdown-container").classList.add("show");
+        document.getElementById("icon").classList.add("icon-rotate");
+      }
+      function zero() {
+        document.getElementById("dropdown-container").classList.remove("show");
+        document.getElementById("dropdown-container").classList.add("hide");
+        document.getElementById("icon").classList.remove("icon-rotate");
+      }
+    </script>
+  </body>
+</html>
