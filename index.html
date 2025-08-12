@@ -1,142 +1,410 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-<!--     Drop Down -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Document</title>
+    <title>Enhanced Carousel</title>
     <style>
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
+
       html,
       body {
+        width: 100%;
         height: 100%;
-        font-family: Arial, sans-serif;
+        font-family: Arial, Helvetica, sans-serif;
       }
-      .main {
+
+      #main-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #photo-container {
+        width: 80%;
+        height: 80%;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100%;
-        background: linear-gradient(270deg, #89cff0, #ffb347, #ff6b6b);
-        background-size: 600% 600%;
-        animation: gradientShift 15s ease infinite;
-      }
-      #dropdown-button {
-        position: relative;
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: box-shadow 0.3s ease;
-      }
-      #dropdown-button:hover {
-        background-color: #0056b3;
-        box-shadow: 0 0 15px rgba(0, 123, 255, 0.6);
-      }
-      .dropdown-wrapper {
-        position: relative;
-        display: inline-block;
+        perspective: 1000px;
       }
 
-      #dropdown-container {
-        position: absolute;
-        top: 100%; /* directly below button */
-        left: 0;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        border-radius: 8px;
-        padding: 5px 0;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(8px);
-        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.15);
-        overflow: hidden;
-      }
-      #dropdown-container.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      .hide {
-        display: none;
-      }
-
-      .icon-rotate {
-        transform: rotate(-90deg);
-        transition: transform 0.3s ease;
-      }
-      .show {
-        display: block;
-      }
-
-      .btn {
-        display: block;
+      .image-wrapper {
         width: 100%;
-        padding: 10px;
-        background: white;
-        border: none;
-        text-align: left;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+
+      .image-wrapper.flipping {
+        transform: rotateY(180deg);
+      }
+
+      .image-front,
+      .image-back {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        backface-visibility: hidden;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .image-back {
+        transform: rotateY(180deg);
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 15px;
+      }
+
+      ul {
+        width: 60%;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 30px;
+      }
+
+      li > button {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.9);
         cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+        transition: all 0.3s ease;
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+        font-weight: bold;
+        font-size: 16px;
+        color: #333;
+        backdrop-filter: blur(10px);
       }
 
-      .btn:hover {
-        background-color: #ddd;
-        transform: translateX(4px);
+      li > button:hover {
+        background: rgba(30, 144, 255, 0.9);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.3);
       }
 
-      @keyframes gradientShift {
-        0% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-        100% {
-          background-position: 0% 50%;
-        }
+      li > button.active {
+        background: #1e90ff;
+        color: white;
+        border-color: #1e90ff;
+        transform: scale(1.1);
+      }
+
+      .carousel-controls {
+        display: flex;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .control-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 25px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .control-btn:hover {
+        background: rgba(30, 144, 255, 0.9);
+        color: white;
+        transform: translateY(-2px);
+      }
+
+      /* Loading placeholder for missing images */
+      .image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            45deg,
+            #f0f0f0 25%,
+            transparent 25%,
+            transparent 75%,
+            #f0f0f0 75%,
+            #f0f0f0
+          ),
+          linear-gradient(
+            45deg,
+            #f0f0f0 25%,
+            transparent 25%,
+            transparent 75%,
+            #f0f0f0 75%,
+            #f0f0f0
+          );
+        background-size: 20px 20px;
+        background-position: 0 0, 10px 10px;
+        border-radius: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #999;
+        font-size: 18px;
+        text-align: center;
       }
     </style>
   </head>
   <body>
-    <div class="main">
-      <div class="dropdown-wrapper">
-        <div id="dropdown-button" onclick="openDropdown()">
-          Menu
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" id="icon">
-            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="2" />
-          </svg>
+    <div id="main-container">
+      <div id="photo-container">
+        <div class="image-wrapper" id="imageWrapper">
+          <div class="image-front">
+            <div class="image-placeholder">Image 1<br />Loading...</div>
+          </div>
+          <div class="image-back">
+            <div class="image-placeholder">Image 2<br />Loading...</div>
+          </div>
         </div>
-        <div id="dropdown-container" class="hide">
-          <button class="btn" onclick="zero()">Edit</button>
-          <button class="btn" onclick="zero()">Copy</button>
-          <button class="btn" onclick="zero()">Delete</button>
-        </div>
+      </div>
+
+      <ul class="carousel-dots" role="tablist">
+        <li role="presentation">
+          <button
+            role="tab"
+            aria-selected="true"
+            aria-controls="slide1"
+            class="active"
+            data-index="0"
+          >
+            1
+          </button>
+        </li>
+        <li role="presentation">
+          <button
+            role="tab"
+            aria-selected="false"
+            aria-controls="slide2"
+            data-index="1"
+          >
+            2
+          </button>
+        </li>
+        <li role="presentation">
+          <button
+            role="tab"
+            aria-selected="false"
+            aria-controls="slide3"
+            data-index="2"
+          >
+            3
+          </button>
+        </li>
+        <li role="presentation">
+          <button
+            role="tab"
+            aria-selected="false"
+            aria-controls="slide4"
+            data-index="3"
+          >
+            4
+          </button>
+        </li>
+        <li role="presentation">
+          <button
+            role="tab"
+            aria-selected="false"
+            aria-controls="slide5"
+            data-index="4"
+          >
+            5
+          </button>
+        </li>
+      </ul>
+
+      <div class="carousel-controls">
+        <button class="control-btn" id="prevBtn">← Previous</button>
+        <button class="control-btn" id="pauseBtn">⏸ Pause</button>
+        <button class="control-btn" id="nextBtn">Next →</button>
       </div>
     </div>
 
     <script>
-      function openDropdown() {
-        document.getElementById("dropdown-container").classList.remove("hide");
-        document.getElementById("dropdown-container").classList.add("show");
-        document.getElementById("icon").classList.add("icon-rotate");
+      const images = [
+        "useful/01.jpg",
+        "useful/02.jpg",
+        "useful/03.jpg",
+        "useful/04.jpg",
+        "useful/05.jpg",
+      ];
+
+      class FlipCarousel {
+        constructor(images) {
+          this.images = images;
+          this.currentIndex = 0;
+          this.isFlipping = false;
+          this.autoPlayInterval = null;
+          this.isPlaying = true;
+
+          this.imageWrapper = document.getElementById("imageWrapper");
+          this.frontImage = this.imageWrapper.querySelector(".image-front");
+          this.backImage = this.imageWrapper.querySelector(".image-back");
+          this.dots = document.querySelectorAll(".carousel-dots button");
+          this.prevBtn = document.getElementById("prevBtn");
+          this.nextBtn = document.getElementById("nextBtn");
+          this.pauseBtn = document.getElementById("pauseBtn");
+
+          this.init();
+        }
+
+        init() {
+          this.loadImage(this.frontImage, 0);
+          this.loadImage(this.backImage, 1);
+          this.setupEventListeners();
+          this.startAutoPlay();
+        }
+
+        loadImage(container, imageIndex) {
+          if (imageIndex < this.images.length) {
+            const img = document.createElement("img");
+            img.src = this.images[imageIndex];
+            img.alt = `Carousel image ${imageIndex + 1}`;
+            img.onerror = () => {
+              container.innerHTML = `<div class="image-placeholder">Image ${
+                imageIndex + 1
+              }<br>Failed to load</div>`;
+            };
+            container.innerHTML = "";
+            container.appendChild(img);
+          } else {
+            container.innerHTML = `<div class="image-placeholder">Image ${
+              imageIndex + 1
+            }<br>Not available</div>`;
+          }
+        }
+
+        setupEventListeners() {
+          // Dot navigation
+          this.dots.forEach((dot, index) => {
+            dot.addEventListener("click", () => this.goToSlide(index));
+          });
+
+          // Control buttons
+          this.prevBtn.addEventListener("click", () => this.previousSlide());
+          this.nextBtn.addEventListener("click", () => this.nextSlide());
+          this.pauseBtn.addEventListener("click", () => this.toggleAutoPlay());
+
+          // Keyboard navigation
+          document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") this.previousSlide();
+            if (e.key === "ArrowRight") this.nextSlide();
+            if (e.key === " ") {
+              e.preventDefault();
+              this.toggleAutoPlay();
+            }
+          });
+        }
+
+        goToSlide(index) {
+          if (index === this.currentIndex || this.isFlipping) return;
+
+          this.currentIndex = index;
+          this.flipToNextImage();
+        }
+
+        nextSlide() {
+          if (this.isFlipping) return;
+          this.currentIndex = (this.currentIndex + 1) % this.images.length;
+          this.flipToNextImage();
+        }
+
+        previousSlide() {
+          if (this.isFlipping) return;
+          this.currentIndex =
+            (this.currentIndex - 1 + this.images.length) % this.images.length;
+          this.flipToNextImage();
+        }
+
+        flipToNextImage() {
+          if (this.isFlipping) return;
+
+          this.isFlipping = true;
+
+          // Load next image on the back face
+          const nextIndex = this.currentIndex;
+          this.loadImage(this.backImage, nextIndex);
+
+          // Add flip class to start animation
+          this.imageWrapper.classList.add("flipping");
+
+          // Update active dot
+          this.updateActiveDot();
+
+          // After flip animation completes
+          setTimeout(() => {
+            // Swap front and back images
+            const tempContent = this.frontImage.innerHTML;
+            this.frontImage.innerHTML = this.backImage.innerHTML;
+            this.backImage.innerHTML = tempContent;
+
+            // Remove flip class and reset
+            this.imageWrapper.classList.remove("flipping");
+
+            // Prepare next image on back face
+            const nextNextIndex = (this.currentIndex + 1) % this.images.length;
+            this.loadImage(this.backImage, nextNextIndex);
+
+            this.isFlipping = false;
+          }, 800);
+        }
+
+        updateActiveDot() {
+          this.dots.forEach((dot, index) => {
+            dot.classList.toggle("active", index === this.currentIndex);
+            dot.setAttribute("aria-selected", index === this.currentIndex);
+          });
+        }
+
+        startAutoPlay() {
+          if (this.autoPlayInterval) clearInterval(this.autoPlayInterval);
+          this.autoPlayInterval = setInterval(() => {
+            if (!this.isFlipping) {
+              this.nextSlide();
+            }
+          }, 3000);
+        }
+
+        stopAutoPlay() {
+          if (this.autoPlayInterval) {
+            clearInterval(this.autoPlayInterval);
+            this.autoPlayInterval = null;
+          }
+        }
+
+        toggleAutoPlay() {
+          if (this.isPlaying) {
+            this.stopAutoPlay();
+            this.pauseBtn.textContent = "▶ Play";
+            this.isPlaying = false;
+          } else {
+            this.startAutoPlay();
+            this.pauseBtn.textContent = "⏸ Pause";
+            this.isPlaying = true;
+          }
+        }
       }
-      function zero() {
-        document.getElementById("dropdown-container").classList.remove("show");
-        document.getElementById("dropdown-container").classList.add("hide");
-        document.getElementById("icon").classList.remove("icon-rotate");
-      }
+
+      // Initialize the carousel
+      const carousel = new FlipCarousel(images);
     </script>
   </body>
 </html>
-
